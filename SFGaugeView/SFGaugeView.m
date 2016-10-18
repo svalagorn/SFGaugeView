@@ -398,7 +398,7 @@ static const CGFloat CUTOFF = 0.5;
         _maxlevel = 10;
     }
     
-    return 12; //git test
+    return 13;
 }
 
 - (void)setMinlevel:(NSUInteger)minlevel
