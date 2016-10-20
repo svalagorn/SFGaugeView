@@ -18,7 +18,7 @@
 
 @interface SFGaugeView : UIView
 
-@property (nonatomic) NSString identifier;
+@property (nonatomic) NSString *identifier;
 @property (nonatomic) NSUInteger maxlevel;
 @property (nonatomic) NSUInteger minlevel;
 @property (nonatomic) UIColor *needleColor;
