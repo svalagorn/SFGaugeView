@@ -27,6 +27,7 @@
 @property (nonatomic) NSString *minImage;
 @property (nonatomic) NSString *maxImage;
 @property (nonatomic) BOOL autoAdjustImageColors;
+@property (nonatomic) BOOL largeGauge;
 
 @property (nonatomic) NSInteger currentLevel;
 

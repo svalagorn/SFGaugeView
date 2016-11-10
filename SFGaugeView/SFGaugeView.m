@@ -83,7 +83,13 @@ static const CGFloat CUTOFF = 0.5;
         
         CGFloat scaleFactor = (self.bounds.size.width / badImg.size.width)/6 ;
         
-        [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius, [self centerY] - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
+        if (self.largeGauge){
+            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.45, [self centerY] * 1.37 - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
+        }
+        else {
+            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.45, [self centerY] * 1.37 - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
+        }
+
         [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius - (goodImg.size.width * scaleFactor), [self centerY] - goodImg.size.height * scaleFactor, goodImg.size.width * scaleFactor, goodImg.size.height * scaleFactor)];
     }
 }
@@ -113,6 +119,9 @@ static const CGFloat CUTOFF = 0.5;
 - (void) drawBg
 {
     CGFloat starttime = M_PI + CUTOFF;
+    if(self.largeGauge){
+        starttime = M_PI_2 + CUTOFF;  //hax
+    }
     CGFloat endtime = 2 * M_PI - CUTOFF;
     
     CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
@@ -386,7 +395,13 @@ static const CGFloat CUTOFF = 0.5;
 - (CGFloat) needleRadius
 {
     if (!_needleRadius) {
-        _needleRadius = self.bounds.size.height * 0.08;
+        //hax
+        if (self.largeGauge){
+            _needleRadius = self.bounds.size.height * 0.04;
+        }
+        else {
+            _needleRadius = self.bounds.size.height * 0.08;
+        }
     }
     
     return _needleRadius;

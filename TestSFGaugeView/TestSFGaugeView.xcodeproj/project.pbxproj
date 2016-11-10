@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		06B68F62380347A692F3D831 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACE04435D1E643C38E4CC999 /* libPods.a */; };
+		3E1810B31DD49245000CB06C /* SFGaugeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E1810B21DD49245000CB06C /* SFGaugeView.m */; };
 		5F6636B818B0ADFB00F54090 /* SFViewXIB.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5F6636B718B0ADFB00F54090 /* SFViewXIB.xib */; };
 		5F6636BB18B0AE3F00F54090 /* SFViewXIB.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6636BA18B0AE3F00F54090 /* SFViewXIB.m */; };
 		5FF87D4B18914D5E00A57B15 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF87D4A18914D5E00A57B15 /* Foundation.framework */; };
@@ -37,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3E1810B11DD49245000CB06C /* SFGaugeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFGaugeView.h; path = ../../SFGaugeView/SFGaugeView.h; sourceTree = "<group>"; };
+		3E1810B21DD49245000CB06C /* SFGaugeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SFGaugeView.m; path = ../../SFGaugeView/SFGaugeView.m; sourceTree = "<group>"; };
 		5F6636B718B0ADFB00F54090 /* SFViewXIB.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SFViewXIB.xib; sourceTree = "<group>"; };
 		5F6636B918B0AE3F00F54090 /* SFViewXIB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFViewXIB.h; sourceTree = "<group>"; };
 		5F6636BA18B0AE3F00F54090 /* SFViewXIB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFViewXIB.m; sourceTree = "<group>"; };
@@ -59,8 +61,6 @@
 		5FF87D7518914D5E00A57B15 /* TestSFGaugeViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestSFGaugeViewTests.m; sourceTree = "<group>"; };
 		5FFDE76A18914E900079917F /* SFViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFViewController.h; sourceTree = "<group>"; };
 		5FFDE76B18914E900079917F /* SFViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFViewController.m; sourceTree = "<group>"; };
-		ACE04435D1E643C38E4CC999 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B4F88F8C74DD4A548B52D7EA /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +71,6 @@
 				5FF87D4D18914D5E00A57B15 /* CoreGraphics.framework in Frameworks */,
 				5FF87D4F18914D5E00A57B15 /* UIKit.framework in Frameworks */,
 				5FF87D4B18914D5E00A57B15 /* Foundation.framework in Frameworks */,
-				06B68F62380347A692F3D831 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,7 +94,6 @@
 				5FF87D6F18914D5E00A57B15 /* TestSFGaugeViewTests */,
 				5FF87D4918914D5E00A57B15 /* Frameworks */,
 				5FF87D4818914D5E00A57B15 /* Products */,
-				B4F88F8C74DD4A548B52D7EA /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -115,7 +113,6 @@
 				5FF87D4C18914D5E00A57B15 /* CoreGraphics.framework */,
 				5FF87D4E18914D5E00A57B15 /* UIKit.framework */,
 				5FF87D6918914D5E00A57B15 /* XCTest.framework */,
-				ACE04435D1E643C38E4CC999 /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -123,6 +120,8 @@
 		5FF87D5018914D5E00A57B15 /* TestSFGaugeView */ = {
 			isa = PBXGroup;
 			children = (
+				3E1810B11DD49245000CB06C /* SFGaugeView.h */,
+				3E1810B21DD49245000CB06C /* SFGaugeView.m */,
 				5FFDE76A18914E900079917F /* SFViewController.h */,
 				5FFDE76B18914E900079917F /* SFViewController.m */,
 				5FF87D5918914D5E00A57B15 /* SFAppDelegate.h */,
@@ -173,11 +172,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5FF87D7918914D5E00A57B15 /* Build configuration list for PBXNativeTarget "TestSFGaugeView" */;
 			buildPhases = (
-				6633F5DC6727468BB502F7D6 /* Check Pods Manifest.lock */,
 				5FF87D4318914D5E00A57B15 /* Sources */,
 				5FF87D4418914D5E00A57B15 /* Frameworks */,
 				5FF87D4518914D5E00A57B15 /* Resources */,
-				4AB38071ABBF40C6890874C4 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -216,6 +213,9 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = Simpliflow;
 				TargetAttributes = {
+					5FF87D4618914D5E00A57B15 = {
+						DevelopmentTeam = 4FGK57URBC;
+					};
 					5FF87D6718914D5E00A57B15 = {
 						TestTargetID = 5FF87D4618914D5E00A57B15;
 					};
@@ -262,39 +262,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		4AB38071ABBF40C6890874C4 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6633F5DC6727468BB502F7D6 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		5FF87D4318914D5E00A57B15 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -304,6 +271,7 @@
 				5F6636BB18B0AE3F00F54090 /* SFViewXIB.m in Sources */,
 				5FF87D5718914D5E00A57B15 /* main.m in Sources */,
 				5FF87D5B18914D5E00A57B15 /* SFAppDelegate.m in Sources */,
+				3E1810B31DD49245000CB06C /* SFGaugeView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,10 +395,10 @@
 		};
 		5FF87D7A18914D5E00A57B15 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B4F88F8C74DD4A548B52D7EA /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 4FGK57URBC;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -446,10 +414,10 @@
 		};
 		5FF87D7B18914D5E00A57B15 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B4F88F8C74DD4A548B52D7EA /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 4FGK57URBC;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
