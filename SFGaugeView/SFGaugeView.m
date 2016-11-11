@@ -84,13 +84,16 @@ static const CGFloat CUTOFF = 0.5;
         CGFloat scaleFactor = (self.bounds.size.width / badImg.size.width)/6 ;
         
         if (self.largeGauge){
-            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.45, [self centerY] * 1.37 - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
-        }
-        else {
-            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.45, [self centerY] * 1.37 - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
+            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.76, [self centerY] * 1.6 - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
+        } else {
+            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius, [self centerY] - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
         }
 
-        [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius - (goodImg.size.width * scaleFactor), [self centerY] - goodImg.size.height * scaleFactor, goodImg.size.width * scaleFactor, goodImg.size.height * scaleFactor)];
+        if (self.largeGauge){
+            [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius * 0.75 - (goodImg.size.width * scaleFactor), [self centerY] * 1.6 - goodImg.size.height * scaleFactor, goodImg.size.width * scaleFactor, goodImg.size.height * scaleFactor)];
+        } else {
+            [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius - (goodImg.size.width * scaleFactor), [self centerY] - goodImg.size.height * scaleFactor, goodImg.size.width * scaleFactor, goodImg.size.height * scaleFactor)];
+        }
     }
 }
 
@@ -119,17 +122,19 @@ static const CGFloat CUTOFF = 0.5;
 - (void) drawBg
 {
     CGFloat starttime = M_PI + CUTOFF;
-    if(self.largeGauge){
-        starttime = M_PI_2 + CUTOFF;  //hax
-    }
     CGFloat endtime = 2 * M_PI - CUTOFF;
     
-    CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
+    if(self.largeGauge){
+        starttime = 0.667 * M_PI + CUTOFF;  //hax
+        endtime = 0.333 * M_PI - CUTOFF;
+    }
     
+    CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
+
     if (bgEndAngle > starttime) {
         UIBezierPath *bgPath = [UIBezierPath bezierPath];
         [bgPath moveToPoint:[self center]];
-        [bgPath addArcWithCenter:[self center] radius:self.bgRadius startAngle:starttime endAngle: (3 * M_PI_2) + self.currentRadian clockwise:YES];
+        [bgPath addArcWithCenter:[self center] radius:self.bgRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
         [bgPath addLineToPoint:[self center]];
         [[self bgColor] set];
         [bgPath fill];
@@ -137,7 +142,7 @@ static const CGFloat CUTOFF = 0.5;
     
     UIBezierPath *bgPath2 = [UIBezierPath bezierPath];
     [bgPath2 moveToPoint:[self center]];
-    [bgPath2 addArcWithCenter:[self center] radius:self.bgRadius startAngle:(3 * M_PI_2) + self.currentRadian endAngle:endtime clockwise:YES];
+    [bgPath2 addArcWithCenter:[self center] radius:self.bgRadius startAngle:bgEndAngle endAngle:endtime clockwise:YES];
     [[self lighterColorForColor:[self bgColor]] set];
     [bgPath2 fill];
     
@@ -267,7 +272,7 @@ static const CGFloat CUTOFF = 0.5;
         return 0;
     }
     
-    if (pos.y > [self center].y) {
+    if (pos.y > [self center].y && !_largeGauge) { //y-axeln räknar uppifrån och ned i iOS. För largeGauge behöver vi hantera när gesture går över center-y.
         return self.currentRadian;
     }
         
@@ -280,10 +285,27 @@ static const CGFloat CUTOFF = 0.5;
     // cacluate distance between tmpPont and center
     CGFloat p13 = [self calculateDistanceFrom:tmpPoint to: [self center]];
     
-    CGFloat result = M_PI_2 - acos(((p12 * p12) + (p13 * p13) - (p23 * p23))/(2 * p12 * p13));
+    CGFloat angleOfCos = acos(((p12 * p12) + (p13 * p13) - (p23 * p23))/(2 * p12 * p13));
+    CGFloat result = M_PI_2 - angleOfCos;
+    
+    if(pos.y > [self center].y ) {
+        result = M_PI_2 + angleOfCos;
+    }
     
     if (pos.x <= [self center].x) {
         result = -result;
+    }
+    
+    if(self.largeGauge){
+        if (result > 2.11f) {
+            return 2.11f;
+        }
+        
+        if (result < -2.11f) {
+            return -2.11f;
+        }
+        
+        return result;
     }
     
     if (result > (M_PI_2 - CUTOFF)) {
@@ -293,9 +315,7 @@ static const CGFloat CUTOFF = 0.5;
     if (result < (-M_PI_2 + CUTOFF)) {
         return -M_PI_2 + CUTOFF;
     }
-    
-//    NSLog(@"Calculated Angle: %f", result);
-    
+
     return result;
 }
 
@@ -313,7 +333,15 @@ static const CGFloat CUTOFF = 0.5;
     NSInteger level = -1;
     
     CGFloat levelSection = (M_PI - (CUTOFF * 2)) / self.scale;
+    if(self.largeGauge){
+        levelSection = 0.703f;
+    }
+
     CGFloat currentSection = -M_PI_2 + CUTOFF;
+    if(self.largeGauge){
+        currentSection = -2.11f;
+    }
+    //CGFloat currentSection = -M_PI + CUTOFF;
     
     for (int i=1; i<=self.scale;i++) {
 //        NSLog(@"[%fl, %fl] = %fl", currentSection, (currentSection + levelSection), self.currentRadian);
@@ -324,9 +352,16 @@ static const CGFloat CUTOFF = 0.5;
         currentSection += levelSection;
     }
     
-    if (self.currentRadian >= (M_PI_2 - CUTOFF)) {
-        level = self.scale + 1;
+    if(self.largeGauge){
+        if (self.currentRadian >= 2.11f) {
+            level = self.scale + 1;
+        }
+    } else {
+        if (self.currentRadian >= (M_PI_2 - CUTOFF)) {
+            level = self.scale + 1;
+        }
     }
+
     
     level = level + self.minlevel - 1;
     
@@ -344,10 +379,37 @@ static const CGFloat CUTOFF = 0.5;
     if (currentLevel >= self.minlevel && currentLevel <= self.maxlevel) {
         
         self.oldLevel = currentLevel;
-        
+
         CGFloat range = M_PI - (CUTOFF * 2);
-        if (currentLevel != self.scale/2) {
+
+        if (currentLevel != self.scale/2 + 1) { //om skalan är 6 så har vi range 1-7 vilket beytyder att 4 ska vara radian 0
             self.currentRadian = (currentLevel * range)/self.scale - (range/2);
+            if (self.largeGauge){
+                switch (currentLevel) {
+                        case 1:
+                        self.currentRadian = -2.11f;
+                        break;
+                        case 2:
+                        self.currentRadian = -1.41f;
+                        break;
+                        case 3:
+                        self.currentRadian = -0.703f;
+                        break;
+                        case 5:
+                        self.currentRadian = 0.703f;
+                        break;
+                        case 6:
+                        self.currentRadian = 1.41f;
+                        break;
+                        case 7:
+                        self.currentRadian = 2.11f;
+                        break;
+                        
+                    default:
+                        break;
+                }
+            }
+            
         } else {
             self.currentRadian = 0.f;
         }
@@ -366,7 +428,11 @@ static const CGFloat CUTOFF = 0.5;
 
 - (CGFloat)centerY
 {
-    return self.bounds.size.height - (self.bounds.size.height * 0.2);
+    if(self.largeGauge) {
+        return self.bounds.size.height - (self.bounds.size.height * 0.4);
+    } else {
+        return self.bounds.size.height - (self.bounds.size.height * 0.2);
+    }
 }
 
 - (CGFloat)centerX

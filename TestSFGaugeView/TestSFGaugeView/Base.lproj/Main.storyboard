@@ -14,21 +14,36 @@
             <objects>
                 <viewController id="vXZ-lx-hvc" customClass="SFViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="r9T-WS-s7N"/>
-                        <viewControllerLayoutGuide type="bottom" id="TRZ-TL-Wna"/>
+                        <viewControllerLayoutGuide type="top" id="yDa-Av-we7"/>
+                        <viewControllerLayoutGuide type="bottom" id="qyf-LA-AB5"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="zEq-6s-yLr" customClass="SFGaugeView">
+                    <view key="view" contentMode="scaleToFill" id="srU-JY-icb">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="redraw" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Byd-FR-YBh" customClass="SFGaugeView">
+                                <rect key="frame" x="16" y="28" width="248" height="248"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="contentStretch" x="0.0" y="0.0" width="0.0" height="0.0"/>
+                            </view>
+                            <view contentMode="redraw" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y2J-xZ-wqd" customClass="SFGaugeView">
+                                <rect key="frame" x="16" y="284" width="179.00000000000006" height="179"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="contentStretch" x="0.0" y="0.0" width="0.0" height="0.0"/>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <outlet property="middleTachometer" destination="zEq-6s-yLr" id="Icu-FD-qRm"/>
+                        <outlet property="leftTachometer" destination="Y2J-xZ-wqd" id="tSQ-LF-zpv"/>
+                        <outlet property="middleTachometer" destination="Byd-FR-YBh" id="Jt3-Pz-gYc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="26.5" y="34.5"/>
+            <point key="canvasLocation" x="-263.5" y="40.5"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
