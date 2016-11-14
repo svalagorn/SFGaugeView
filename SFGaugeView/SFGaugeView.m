@@ -13,8 +13,16 @@
 @property(nonatomic) CGFloat needleRadius;
 @property(nonatomic) CGFloat bgRadius;
 @property(nonatomic) CGFloat currentRadian;
+@property(nonatomic) CGFloat roundedTargetValueRadian;
 @property(nonatomic) NSInteger oldLevel;
 @property(nonatomic, readonly) NSUInteger scale;
+
+@property(nonatomic, strong) CADisplayLink *timer;
+@property(nonatomic) CFTimeInterval lastTime;
+@property(nonatomic) CGFloat animationDuration;
+@property(nonatomic) CGFloat totalRadiansToRotate;
+@property(nonatomic) BOOL runningSelfTest;
+
 @end
 
 @implementation SFGaugeView
@@ -22,6 +30,15 @@
 @synthesize minlevel = _minlevel;
 
 static const CGFloat CUTOFF = 0.5;
+static const CGFloat radiansFor1 = -2.11f;
+static const CGFloat radiansFor2 = -1.408f;
+static const CGFloat radiansFor3 = -0.7033f;
+static const CGFloat radiansFor4 = 0.f;
+static const CGFloat radiansFor5 = 0.7033f;
+static const CGFloat radiansFor6 = 1.408f;
+static const CGFloat radiansFor7 = 2.11f;
+static const CGFloat radiansForHalfSegment = 0.35165f;
+
 
 #pragma mark init stuff
 
@@ -49,11 +66,15 @@ static const CGFloat CUTOFF = 0.5;
     
     self.currentRadian = 0;
     [self addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)]];
+
+    //todo move to better place where we can check if largeGauge
+    [self runSelfTest];
 }
 
 - (void) awakeFromNib
 {
     [self setup];
+    [super awakeFromNib];
 }
 
 #pragma mark drawing
@@ -64,6 +85,89 @@ static const CGFloat CUTOFF = 0.5;
     [self drawNeedle];
     [self drawLabels];
     [self drawImageLabels];
+}
+
+#pragma mark timer
+-(void)runSelfTest {
+    self.runningSelfTest = YES;
+    [self startNeedleRotationTimer];
+    self.animationDuration = 0.5f;
+    self.roundedTargetValueRadian = 2.11f;
+    self.totalRadiansToRotate = 4.22f;
+}
+
+-(void)goMin {
+    self.runningSelfTest = NO;
+    [self startNeedleRotationTimer];
+    self.animationDuration = 0.5f;
+    self.roundedTargetValueRadian = -2.11f;
+    self.totalRadiansToRotate = -4.22f;
+}
+
+- (void)rotateNeedleToClosestValue {
+    [self startNeedleRotationTimer];
+    self.animationDuration = 0.4f;
+    self.totalRadiansToRotate = self.roundedTargetValueRadian - self.currentRadian;
+}
+
+-(void)startNeedleRotationTimer{
+    self.timer = [CADisplayLink displayLinkWithTarget:self selector:@selector(rotateNeedleForFrame:)];
+    [self.timer addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    //NSLog(@"***TIMER STARTED***");
+}
+
+- (void)rotateNeedleForFrame:(CADisplayLink *)sender {
+    if (!self.lastTime)
+    {
+        [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+        self.lastTime = self.timer.timestamp;
+        return;
+    }
+    sender.paused = YES;
+    
+    CFTimeInterval elapsedTimeSinceLastFrame = (sender.timestamp - self.lastTime);
+    //NSLog(@"elapsedTimeSinceLastFrame %f", elapsedTimeSinceLastFrame);
+    self.lastTime = sender.timestamp;
+    
+    CGFloat ratio = elapsedTimeSinceLastFrame / self.animationDuration;
+    //NSLog(@"ratio %f", ratio);
+    
+    CGFloat radiansToRotate = self.totalRadiansToRotate * ratio;
+    //NSLog(@"radiansToRotate %f", radiansToRotate);
+
+    
+    if(radiansToRotate < 0) //ROTERA MOTSOLS
+    {
+        if((self.currentRadian + radiansToRotate) <= self.roundedTargetValueRadian) {
+            self.currentRadian = self.roundedTargetValueRadian;
+
+        } else {
+            self.currentRadian = self.currentRadian + radiansToRotate;
+        }
+    }
+    else { //ROTERA MEDSOLS
+        if((self.currentRadian + radiansToRotate) >= self.roundedTargetValueRadian) {
+            self.currentRadian = self.roundedTargetValueRadian;
+            
+        } else {
+            self.currentRadian = self.currentRadian + radiansToRotate;
+        }
+    }
+    
+    if(self.currentRadian == self.roundedTargetValueRadian) {
+        //NSLog(@"Rotation finished");
+        self.lastTime = 0;
+        [self.timer invalidate];
+        self.timer = nil;
+        [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+        //NSLog(@"***TIMER ENDED***");
+        if(self.runningSelfTest){
+            [self goMin];
+        }
+    }
+    sender.paused = NO;
+    //draw!
+    [self setNeedsDisplay];
 }
 
 - (void) drawImageLabels
@@ -106,7 +210,7 @@ static const CGFloat CUTOFF = 0.5;
     
     NSDictionary* stringAttrs = @{ NSFontAttributeName : font, NSForegroundColorAttributeName : textColor };
     
-    if (!self.hideLevel) {
+    if (!self.hideLevel && self.currentLevel != -1) {
         fontSize = [self needleRadius] + 5;
         font = [UIFont fontWithName:@"Arial" size:fontSize];
         textColor = [self bgColor];
@@ -123,35 +227,69 @@ static const CGFloat CUTOFF = 0.5;
 {
     CGFloat starttime = M_PI + CUTOFF;
     CGFloat endtime = 2 * M_PI - CUTOFF;
+    CGFloat coloredTrackRadius = self.bgRadius;
     
     if(self.largeGauge){
         starttime = 0.667 * M_PI + CUTOFF;  //hax
         endtime = 0.333 * M_PI - CUTOFF;
+        coloredTrackRadius = coloredTrackRadius - 10;
     }
     
     CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
 
-    if (bgEndAngle > starttime) {
+    if ((self.largeGauge && self.currentRadian > -2.11f) || (!self.largeGauge && bgEndAngle > starttime)) {
         UIBezierPath *bgPath = [UIBezierPath bezierPath];
         [bgPath moveToPoint:[self center]];
-        [bgPath addArcWithCenter:[self center] radius:self.bgRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
+        [bgPath addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
         [bgPath addLineToPoint:[self center]];
-        [[self bgColor] set];
+        //[[self bgColor] set];
+        [[UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1] set];
         [bgPath fill];
     }
     
     UIBezierPath *bgPath2 = [UIBezierPath bezierPath];
     [bgPath2 moveToPoint:[self center]];
-    [bgPath2 addArcWithCenter:[self center] radius:self.bgRadius startAngle:bgEndAngle endAngle:endtime clockwise:YES];
+    [bgPath2 addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:bgEndAngle endAngle:endtime clockwise:YES];
     [[self lighterColorForColor:[self bgColor]] set];
     [bgPath2 fill];
+    
+    if(self.largeGauge){
+        //marker paths
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        UIBezierPath *markerpath = [UIBezierPath bezierPath];
+        [markerpath addArcWithCenter:[self center] radius:self.bgRadius+3 startAngle:starttime endAngle:endtime clockwise:YES];
+        [markerpath addLineToPoint:[self center]];
+
+        [[self markerColor] set];
+        markerpath.lineWidth = 12;
+        
+        CGContextSaveGState(context);
+        CGFloat dashAndGap[] = {1.0, 79.66};
+        CGContextSetLineDash(context, 0.0, dashAndGap, 2);
+        [markerpath stroke];
+        CGContextRestoreGState(context);
+        
+        
+        UIBezierPath *whiteGapPath = [UIBezierPath bezierPath];
+        [whiteGapPath addArcWithCenter:[self center] radius:coloredTrackRadius-11.3 startAngle:starttime endAngle:endtime clockwise:YES];
+        [whiteGapPath addLineToPoint:[self center]];
+        
+        [[UIColor whiteColor] set];
+        whiteGapPath.lineWidth = 23;
+
+        CGContextSaveGState(context);
+        CGFloat whiteGapDashAndGap[] = {2.0, 61.3};
+        CGContextSetLineDash(context, 0.0, whiteGapDashAndGap, 2);
+        [whiteGapPath stroke];
+        CGContextRestoreGState(context);
+    }
     
     UIBezierPath *bgPathInner = [UIBezierPath bezierPath];
     [bgPathInner moveToPoint:[self center]];
     
     CGFloat innerRadius = self.bgRadius - (self.bgRadius * 0.3);
-    [bgPathInner addArcWithCenter:[self center] radius:innerRadius startAngle:starttime endAngle:endtime clockwise:YES];
-    [bgPathInner addLineToPoint:[self center]];
+    [bgPathInner addArcWithCenter:[self center] radius:innerRadius startAngle:starttime endAngle:endtime + 1 clockwise:YES];
+    //[bgPathInner addLineToPoint:[self center]];
     
     self.backgroundColor ? [self.backgroundColor set] : [[UIColor whiteColor] set];
     [bgPathInner stroke];
@@ -225,8 +363,8 @@ static const CGFloat CUTOFF = 0.5;
     CGAffineTransform translate = CGAffineTransformMakeTranslation(-1 * (self.bounds.origin.x + [self center].x), -1 * (self.bounds.origin.y + [self center].y));
     [needlePath applyTransform:translate];
     
-    CGAffineTransform rotate = CGAffineTransformMakeRotation(self.currentRadian);
-    [needlePath applyTransform:rotate];
+    translate = CGAffineTransformMakeRotation(self.currentRadian);
+    [needlePath applyTransform:translate];
     
     translate = CGAffineTransformMakeTranslation((self.bounds.origin.x + [self center].x), (self.bounds.origin.y + [self center].y));
     [needlePath applyTransform:translate];
@@ -239,9 +377,9 @@ static const CGFloat CUTOFF = 0.5;
 {
     CGFloat r, g, b, a;
     if ([c getRed:&r green:&g blue:&b alpha:&a])
-        return [UIColor colorWithRed:MIN(r + 0.1, 1.0)
-                               green:MIN(g + 0.1, 1.0)
-                                blue:MIN(b + 0.1, 1.0)
+        return [UIColor colorWithRed:MIN(r + 0.12, 1.0)
+                               green:MIN(g + 0.12, 1.0)
+                                blue:MIN(b + 0.12, 1.0)
                                alpha:a];
     return nil;
 }
@@ -254,10 +392,44 @@ static const CGFloat CUTOFF = 0.5;
     
     if (gesture.state == UIGestureRecognizerStateChanged)
     {
-        //                NSLog (@"[%f,%f]",currentPosition.x, currentPosition.y);
         self.currentRadian = [self calculateRadian:currentPosition];
         [self setNeedsDisplay];
         [self currentLevel];
+    }
+    if (gesture.state == UIGestureRecognizerStateEnded)
+    {
+        //NSLog(@"gesture state is 'ended'");
+        if(self.largeGauge){
+            //Avrunda till radianvärde för närmsta heltal (halvt segment = 0.35165 radians)
+            if(self.currentRadian < radiansFor1 + radiansForHalfSegment){
+                self.roundedTargetValueRadian = radiansFor1;
+            }
+            else if (self.currentRadian > radiansFor1 + radiansForHalfSegment && self.currentRadian < radiansFor2 + radiansForHalfSegment)
+            {
+                self.roundedTargetValueRadian = radiansFor2;
+            }
+            else if (self.currentRadian > radiansFor2 + radiansForHalfSegment && self.currentRadian < radiansFor3 + radiansForHalfSegment)
+            {
+                self.roundedTargetValueRadian = radiansFor3;
+            }
+            else if (self.currentRadian > radiansFor3 + radiansForHalfSegment && self.currentRadian < radiansFor4 + radiansForHalfSegment)
+            {
+                self.roundedTargetValueRadian = radiansFor4;
+            }
+            else if (self.currentRadian > radiansFor4 + radiansForHalfSegment && self.currentRadian < radiansFor5 + radiansForHalfSegment)
+            {
+                self.roundedTargetValueRadian = radiansFor5;
+            }
+            else if (self.currentRadian > radiansFor5 - radiansForHalfSegment && self.currentRadian < radiansFor6 + radiansForHalfSegment)
+            {
+                self.roundedTargetValueRadian = radiansFor6;
+            }
+            else if(self.currentRadian > radiansFor7 - radiansForHalfSegment){
+                self.roundedTargetValueRadian = radiansFor7;
+            }
+            
+            [self rotateNeedleToClosestValue];
+        }
     }
 }
 
@@ -366,7 +538,7 @@ static const CGFloat CUTOFF = 0.5;
     level = level + self.minlevel - 1;
     
     //    NSLog(@"Current Level is %lu", (unsigned long)level);
-    if (self.oldLevel != level && self.delegate && [self.delegate respondsToSelector:@selector(sfGaugeView:didChangeLevel:)]) {
+    if (self.oldLevel != level && self.delegate && [self.delegate respondsToSelector:@selector(sfGaugeView:didChangeLevel:)] && level != -1) {
         [self.delegate sfGaugeView:self didChangeLevel:level];
     }
     
@@ -387,22 +559,22 @@ static const CGFloat CUTOFF = 0.5;
             if (self.largeGauge){
                 switch (currentLevel) {
                         case 1:
-                        self.currentRadian = -2.11f;
+                        self.currentRadian = radiansFor1;
                         break;
                         case 2:
-                        self.currentRadian = -1.41f;
+                        self.currentRadian = radiansFor2;
                         break;
                         case 3:
-                        self.currentRadian = -0.703f;
+                        self.currentRadian = radiansFor3;
                         break;
                         case 5:
-                        self.currentRadian = 0.703f;
+                        self.currentRadian = radiansFor5;
                         break;
                         case 6:
-                        self.currentRadian = 1.41f;
+                        self.currentRadian = radiansFor6;
                         break;
                         case 7:
-                        self.currentRadian = 2.11f;
+                        self.currentRadian = radiansFor7;
                         break;
                         
                     default:
@@ -449,6 +621,20 @@ static const CGFloat CUTOFF = 0.5;
     return _needleColor;
 }
 
+- (UIColor *) markerColor
+{
+    if(!_markerColor){
+        const CGFloat* components = CGColorGetComponents(_needleColor.CGColor);
+        _markerColor = [UIColor colorWithRed:components[0] green:components[1] blue:components[2] alpha:0.6];
+        //force gray - todo clean up
+        //_markerColor = [UIColor colorWithRed:175/255.0 green:175/255.0 blue:175/255.0 alpha:1];
+        
+    }
+    
+    return _markerColor;
+}
+
+
 - (UIColor *) bgColor
 {
     if (!_bgColor) {
@@ -463,7 +649,7 @@ static const CGFloat CUTOFF = 0.5;
     if (!_needleRadius) {
         //hax
         if (self.largeGauge){
-            _needleRadius = self.bounds.size.height * 0.04;
+            _needleRadius = self.bounds.size.height * 0.06;
         }
         else {
             _needleRadius = self.bounds.size.height * 0.08;

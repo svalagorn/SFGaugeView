@@ -46,13 +46,14 @@
     self.topTachometer.autoAdjustImageColors = YES;
     
     self.middleTachometer.largeGauge = true;
-    self.middleTachometer.bgColor = [UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1];
+    //self.middleTachometer.bgColor = [UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1];
     self.middleTachometer.needleColor = [UIColor colorWithRed:27/255.0 green:103/255.0 blue:107/255.0 alpha:1];
     self.middleTachometer.maxlevel = 7;
     self.middleTachometer.minlevel = 1;
     self.middleTachometer.minImage = @"minImage";
     self.middleTachometer.maxImage = @"maxImage";
     self.middleTachometer.currentLevel = 1;
+    self.middleTachometer.hideLevel = YES;
     self.middleTachometer.delegate = self;
 
 

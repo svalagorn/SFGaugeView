@@ -27,7 +27,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <rect key="contentStretch" x="0.0" y="0.0" width="0.0" height="0.0"/>
                             </view>
-                            <view contentMode="redraw" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y2J-xZ-wqd" customClass="SFGaugeView">
+                            <view contentMode="redraw" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y2J-xZ-wqd">
                                 <rect key="frame" x="16" y="284" width="179.00000000000006" height="179"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
@@ -37,7 +37,6 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <outlet property="leftTachometer" destination="Y2J-xZ-wqd" id="tSQ-LF-zpv"/>
                         <outlet property="middleTachometer" destination="Byd-FR-YBh" id="Jt3-Pz-gYc"/>
                     </connections>
                 </viewController>
