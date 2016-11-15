@@ -238,12 +238,12 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     if(self.largeGauge){
         starttime = 0.667 * M_PI + CUTOFF;  //hax
         endtime = 0.333 * M_PI - CUTOFF;
-        coloredTrackRadius = coloredTrackRadius - 10;
+        coloredTrackRadius = coloredTrackRadius * 0.9f;
     }
     
     CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
 
-    if ((self.largeGauge && self.currentRadian > -2.11f) || (!self.largeGauge && bgEndAngle > starttime)) {
+    if ((self.largeGauge && self.currentRadian > radiansFor1) || (!self.largeGauge && bgEndAngle > starttime)) {
         UIBezierPath *bgPath = [UIBezierPath bezierPath];
         [bgPath moveToPoint:[self center]];
         [bgPath addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
@@ -260,31 +260,39 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     [bgPath2 fill];
     
     if(self.largeGauge){
-        //marker paths
+        //markers
         CGContextRef context = UIGraphicsGetCurrentContext();
         UIBezierPath *markerpath = [UIBezierPath bezierPath];
-        [markerpath addArcWithCenter:[self center] radius:self.bgRadius+3 startAngle:starttime endAngle:endtime clockwise:YES];
+        [markerpath addArcWithCenter:[self center] radius:self.bgRadius * 1.05f startAngle:starttime endAngle:endtime clockwise:YES];
         [markerpath addLineToPoint:[self center]];
 
         [[self markerColor] set];
-        markerpath.lineWidth = 12;
+        markerpath.lineWidth = 12; //todo calculate value
         
         CGContextSaveGState(context);
-        CGFloat dashAndGap[] = {1.0, 79.66};
+        CGFloat outerCircumference = 2 * M_PI * (self.bgRadius * 1.05f);
+        CGFloat outerAdjustedDivisionFactor = 9.037236 - ((self.layer.bounds.size.width - 248) * (0.03851 / 100));
+        CGFloat outerGap = outerCircumference / outerAdjustedDivisionFactor; //9.037236 vid 248, 8,998729 vid 348 > 0,03851 differens / 100 points
+        CGFloat dashAndGap[] = {1.0, outerGap}; //81.47 vid 248, 114.81 vid 348
         CGContextSetLineDash(context, 0.0, dashAndGap, 2);
         [markerpath stroke];
         CGContextRestoreGState(context);
         
-        
+        //white gaps
         UIBezierPath *whiteGapPath = [UIBezierPath bezierPath];
-        [whiteGapPath addArcWithCenter:[self center] radius:coloredTrackRadius-11.3 startAngle:starttime endAngle:endtime clockwise:YES];
+        [whiteGapPath addArcWithCenter:[self center] radius:coloredTrackRadius * 0.9f startAngle:starttime endAngle:endtime clockwise:YES];
         [whiteGapPath addLineToPoint:[self center]];
         
         [[UIColor whiteColor] set];
-        whiteGapPath.lineWidth = 23;
+        whiteGapPath.lineWidth = 33; //todo calculate value
 
         CGContextSaveGState(context);
-        CGFloat whiteGapDashAndGap[] = {2.0, 61.3};
+        CGFloat innerCircumference = 2 * M_PI * (coloredTrackRadius * 0.9f);
+        CGFloat innerAdjustedDivisionFactor = 9.253418 - ((self.layer.bounds.size.width - 248) * (0.10830 / 100));
+        CGFloat innerGap = innerCircumference / innerAdjustedDivisionFactor; //9.253418 vid 248, 9.145116 vid 348 > 0.10830 differens / 100 points
+        
+        
+        CGFloat whiteGapDashAndGap[] = {2.0, innerGap}; //61.38 vid 248, 87.15 vid 348
         CGContextSetLineDash(context, 0.0, whiteGapDashAndGap, 2);
         [whiteGapPath stroke];
         CGContextRestoreGState(context);
@@ -293,7 +301,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     UIBezierPath *bgPathInner = [UIBezierPath bezierPath];
     [bgPathInner moveToPoint:[self center]];
     
-    CGFloat innerRadius = self.bgRadius - (self.bgRadius * 0.3);
+    CGFloat innerRadius = self.bgRadius * 0.7;
     [bgPathInner addArcWithCenter:[self center] radius:innerRadius startAngle:starttime endAngle:endtime + 1 clockwise:YES];
     //[bgPathInner addLineToPoint:[self center]];
     
