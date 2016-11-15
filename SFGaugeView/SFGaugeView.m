@@ -32,9 +32,9 @@
 static const CGFloat CUTOFF = 0.5;
 static const CGFloat radiansFor1 = -2.11f;
 static const CGFloat radiansFor2 = -1.408f;
-static const CGFloat radiansFor3 = -0.7033f;
-static const CGFloat radiansFor4 = 0.f;
-static const CGFloat radiansFor5 = 0.7033f;
+static const CGFloat radiansFor3 = -0.702f;
+static const CGFloat radiansFor4 = 0.0000f;
+static const CGFloat radiansFor5 = 0.702f;
 static const CGFloat radiansFor6 = 1.408f;
 static const CGFloat radiansFor7 = 2.11f;
 static const CGFloat radiansForHalfSegment = 0.35165f;
@@ -92,16 +92,16 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     self.runningSelfTest = YES;
     [self startNeedleRotationTimer];
     self.animationDuration = 0.5f;
-    self.roundedTargetValueRadian = 2.11f;
-    self.totalRadiansToRotate = 4.22f;
+    self.roundedTargetValueRadian = radiansFor7;
+    self.totalRadiansToRotate = radiansFor7 * 2;
 }
 
 -(void)goMin {
     self.runningSelfTest = NO;
     [self startNeedleRotationTimer];
     self.animationDuration = 0.5f;
-    self.roundedTargetValueRadian = -2.11f;
-    self.totalRadiansToRotate = -4.22f;
+    self.roundedTargetValueRadian = radiansFor1;
+    self.totalRadiansToRotate = radiansFor1 * 2;
 }
 
 - (void)rotateNeedleToClosestValue {
@@ -159,6 +159,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         self.lastTime = 0;
         [self.timer invalidate];
         self.timer = nil;
+        [self currentLevel];
         [[UIApplication sharedApplication] endIgnoringInteractionEvents];
         //NSLog(@"***TIMER ENDED***");
         if(self.runningSelfTest){
@@ -168,6 +169,11 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     sender.paused = NO;
     //draw!
     [self setNeedsDisplay];
+}
+
+//- betyder instansmetod, + betyder klassmetod.
+- (BOOL)floatingPointsAreEqualEnough:(CGFloat)n1 number2:(CGFloat)n2{
+    return (fabs(n1 - n2) < 0.002);
 }
 
 - (void) drawImageLabels
@@ -210,7 +216,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     
     NSDictionary* stringAttrs = @{ NSFontAttributeName : font, NSForegroundColorAttributeName : textColor };
     
-    if (!self.hideLevel && self.currentLevel != -1) {
+    if (!self.hideLevel) {
         fontSize = [self needleRadius] + 5;
         font = [UIFont fontWithName:@"Arial" size:fontSize];
         textColor = [self bgColor];
@@ -469,12 +475,12 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     }
     
     if(self.largeGauge){
-        if (result > 2.11f) {
-            return 2.11f;
+        if (result > radiansFor7) {
+            return radiansFor7;
         }
         
-        if (result < -2.11f) {
-            return -2.11f;
+        if (result < radiansFor1) {
+            return radiansFor1;
         }
         
         return result;
@@ -506,18 +512,19 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     
     CGFloat levelSection = (M_PI - (CUTOFF * 2)) / self.scale;
     if(self.largeGauge){
-        levelSection = 0.703f;
+        levelSection = radiansFor5;
     }
 
     CGFloat currentSection = -M_PI_2 + CUTOFF;
     if(self.largeGauge){
-        currentSection = -2.11f;
+        currentSection = radiansFor1;
     }
     //CGFloat currentSection = -M_PI + CUTOFF;
-    
+    CGFloat currentPlusLevel = 0.000f;
     for (int i=1; i<=self.scale;i++) {
 //        NSLog(@"[%fl, %fl] = %fl", currentSection, (currentSection + levelSection), self.currentRadian);
-        if (self.currentRadian >= currentSection && self.currentRadian < (currentSection + levelSection)) {
+        currentPlusLevel = (float)(currentSection + levelSection);
+        if (self.currentRadian >= currentSection && (self.currentRadian < currentPlusLevel)) {
             level = i;
             break;
         }
@@ -525,7 +532,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     }
     
     if(self.largeGauge){
-        if (self.currentRadian >= 2.11f) {
+        if (self.currentRadian >= radiansFor7) {
             level = self.scale + 1;
         }
     } else {
@@ -534,11 +541,15 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         }
     }
 
+    //corner case
+    if(level == self.minlevel && [self floatingPointsAreEqualEnough:self.currentRadian number2:currentPlusLevel]){
+        level++;
+    }
     
     level = level + self.minlevel - 1;
     
     //    NSLog(@"Current Level is %lu", (unsigned long)level);
-    if (self.oldLevel != level && self.delegate && [self.delegate respondsToSelector:@selector(sfGaugeView:didChangeLevel:)] && level != -1) {
+    if (self.oldLevel != level && self.delegate && [self.delegate respondsToSelector:@selector(sfGaugeView:didChangeLevel:)]) {
         [self.delegate sfGaugeView:self didChangeLevel:level];
     }
     
