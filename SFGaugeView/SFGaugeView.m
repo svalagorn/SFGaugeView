@@ -91,17 +91,23 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
 -(void)runSelfTest {
     self.runningSelfTest = YES;
     [self startNeedleRotationTimer];
-    self.animationDuration = 0.5f;
+    self.animationDuration = 1.0f;
     self.roundedTargetValueRadian = radiansFor7;
     self.totalRadiansToRotate = radiansFor7 * 2;
 }
 
--(void)goMin {
+-(void)goMin:(BOOL) largeGauge {
     self.runningSelfTest = NO;
     [self startNeedleRotationTimer];
-    self.animationDuration = 0.5f;
-    self.roundedTargetValueRadian = radiansFor1;
-    self.totalRadiansToRotate = radiansFor1 * 2;
+    self.animationDuration = 1.0f;
+    if(largeGauge){
+        self.roundedTargetValueRadian = radiansFor1;
+        self.totalRadiansToRotate = radiansFor1 * 2;
+    } else {
+        self.roundedTargetValueRadian = M_PI + CUTOFF;
+        self.totalRadiansToRotate = (M_PI + CUTOFF) *2 ;
+    }
+
 }
 
 - (void)rotateNeedleToClosestValue {
@@ -163,7 +169,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         [[UIApplication sharedApplication] endIgnoringInteractionEvents];
         //NSLog(@"***TIMER ENDED***");
         if(self.runningSelfTest){
-            [self goMin];
+            [self goMin:self.largeGauge];
         }
     }
     sender.paused = NO;
@@ -216,7 +222,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     
     NSDictionary* stringAttrs = @{ NSFontAttributeName : font, NSForegroundColorAttributeName : textColor };
     
-    if (!self.hideLevel) {
+    if (!self.hideLevel && self.currentLevel != -1) {
         fontSize = [self needleRadius] + 5;
         font = [UIFont fontWithName:@"Arial" size:fontSize];
         textColor = [self bgColor];
@@ -557,7 +563,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     level = level + self.minlevel - 1;
     
     //    NSLog(@"Current Level is %lu", (unsigned long)level);
-    if (self.oldLevel != level && self.delegate && [self.delegate respondsToSelector:@selector(sfGaugeView:didChangeLevel:)]) {
+    if (self.oldLevel != level && self.delegate && [self.delegate respondsToSelector:@selector(sfGaugeView:didChangeLevel:)] && level != -1) {
         [self.delegate sfGaugeView:self didChangeLevel:level];
     }
     
