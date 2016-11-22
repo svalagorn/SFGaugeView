@@ -188,18 +188,27 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
             goodImg = [UIImage imageNamed: self.maxImage];
         }
         
-        CGFloat scaleFactor = (self.bounds.size.width / badImg.size.width)/6 ;
-        
         if (self.largeGauge){
-            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.76, [self centerY] * 1.6 - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
+            CGFloat scaleFactor = (self.bounds.size.width / badImg.size.width)/6 ;
+            
+            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 0.76,
+                                          [self centerY] * 1.6 - badImg.size.height * scaleFactor,
+                                          badImg.size.width * scaleFactor,
+                                          badImg.size.height * scaleFactor)];
+            [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius * 0.75 - (goodImg.size.width * scaleFactor),
+                                           [self centerY] * 1.6 - goodImg.size.height * scaleFactor,
+                                           goodImg.size.width * scaleFactor,
+                                           goodImg.size.height * scaleFactor)];
         } else {
-            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius, [self centerY] - badImg.size.height * scaleFactor, badImg.size.width * scaleFactor, badImg.size.height * scaleFactor)];
-        }
-
-        if (self.largeGauge){
-            [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius * 0.75 - (goodImg.size.width * scaleFactor), [self centerY] * 1.6 - goodImg.size.height * scaleFactor, goodImg.size.width * scaleFactor, goodImg.size.height * scaleFactor)];
-        } else {
-            [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius - (goodImg.size.width * scaleFactor), [self centerY] - goodImg.size.height * scaleFactor, goodImg.size.width * scaleFactor, goodImg.size.height * scaleFactor)];
+            CGFloat scaleFactor = (self.bounds.size.width / badImg.size.width)/12;
+            [badImg drawInRect:CGRectMake([self centerX] - self.bgRadius * 1.04,
+                                          [self centerY] - badImg.size.height * 2 * scaleFactor,
+                                          badImg.size.width * scaleFactor,
+                                          badImg.size.height * scaleFactor)];
+            [goodImg drawInRect:CGRectMake([self centerX] + self.bgRadius * 1.04 - (goodImg.size.width * scaleFactor),
+                                           [self centerY] - goodImg.size.height * 2 * scaleFactor,
+                                           goodImg.size.width * scaleFactor,
+                                           goodImg.size.height * scaleFactor)];
         }
     }
 }
@@ -238,27 +247,28 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         coloredTrackRadius = coloredTrackRadius * 0.9f;
     }
     
-    CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
-
-    if ((self.largeGauge && self.currentRadian > radiansFor1) || (!self.largeGauge && bgEndAngle > starttime)) {
-        UIBezierPath *bgPath = [UIBezierPath bezierPath];
-        [bgPath moveToPoint:[self center]];
-        [bgPath addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
-        [bgPath addLineToPoint:[self center]];
-        //[[self bgColor] set];
-        [[UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1] set];
-        [bgPath fill];
-    }
-    
-    UIBezierPath *bgPath2 = [UIBezierPath bezierPath];
-    [bgPath2 moveToPoint:[self center]];
-    [bgPath2 addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:bgEndAngle endAngle:endtime clockwise:YES];
-    [[self lighterColorForColor:[self bgColor]] set];
-    [bgPath2 fill];
+    CGContextRef context = UIGraphicsGetCurrentContext();
     
     if(self.largeGauge){
+        CGFloat bgEndAngle = (3 * M_PI_2) + self.currentRadian;
+
+        if ((self.largeGauge && self.currentRadian > radiansFor1) || (!self.largeGauge && bgEndAngle > starttime)) {
+            UIBezierPath *bgPath = [UIBezierPath bezierPath];
+            [bgPath moveToPoint:[self center]];
+            [bgPath addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
+            [bgPath addLineToPoint:[self center]];
+            //[[self bgColor] set];
+            [[UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1] set];
+            [bgPath fill];
+        }
+        
+        UIBezierPath *bgPath2 = [UIBezierPath bezierPath];
+        [bgPath2 moveToPoint:[self center]];
+        [bgPath2 addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:bgEndAngle endAngle:endtime clockwise:YES];
+        [[self lighterColorForColor:[self bgColor]] set];
+        [bgPath2 fill];
+        
         //markers
-        CGContextRef context = UIGraphicsGetCurrentContext();
         UIBezierPath *markerpath = [UIBezierPath bezierPath];
         [markerpath addArcWithCenter:[self center] radius:self.bgRadius * 1.05f startAngle:starttime endAngle:endtime clockwise:YES];
         [markerpath addLineToPoint:[self center]];
@@ -293,20 +303,76 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         CGContextSetLineDash(context, 0.0, whiteGapDashAndGap, 2);
         [whiteGapPath stroke];
         CGContextRestoreGState(context);
-    } else {
         
+        //fill inner space
+        UIBezierPath *bgPathInner = [UIBezierPath bezierPath];
+        [bgPathInner moveToPoint:[self center]];
+        
+        CGFloat innerRadius = self.bgRadius * 0.7;
+        [bgPathInner addArcWithCenter:[self center] radius:innerRadius startAngle:starttime endAngle:endtime + 1 clockwise:YES];
+        
+        self.backgroundColor ? [self.backgroundColor set] : [[UIColor whiteColor] set];
+        [bgPathInner stroke];
+        [bgPathInner fill];
+    } else {
+        //large markers
+        UIBezierPath *markerpath = [UIBezierPath bezierPath];
+        [markerpath addArcWithCenter:[self center] radius:self.bgRadius * 1.07f startAngle:starttime endAngle:endtime clockwise:YES];
+        [markerpath addLineToPoint:[self center]];
+        
+        [[UIColor blackColor] set];
+        markerpath.lineWidth = 25;
+        
+        CGContextSaveGState(context);
+        CGFloat outerCircumference = 2 * M_PI * (self.bgRadius * 1.07f);
+        CGFloat outerAdjustedDivisionFactor = 6.24199 - ((self.layer.bounds.size.width - 248) * (0.11 / 100));
+        CGFloat outerGap = outerCircumference / outerAdjustedDivisionFactor; //6,24199 vid 248, 6.13176 vid 348 > 0,110 differens / 100 points
+        CGFloat dashAndGap[] = {5.0, outerGap}; //120.2 vid 248, 171.7 vid 348
+        CGContextSetLineDash(context, 0.0, dashAndGap, 2);
+        [markerpath stroke];
+        CGContextRestoreGState(context);
+        
+        CGFloat smallCircumference = 2 * M_PI * (self.bgRadius * 1.09f);
+        
+        //small markers left side
+        UIBezierPath *smallMarkerpathLeft = [UIBezierPath bezierPath];
+        smallMarkerpathLeft.lineWidth = 15;
+        [smallMarkerpathLeft addArcWithCenter:[self center] radius:self.bgRadius * 1.09f startAngle:starttime endAngle:(3 * M_PI / 2) clockwise:YES];
+        
+        CGFloat smallAdjustedDivisionFactorLeft = 19.23281 - ((self.layer.bounds.size.width - 248) * (0.45651 / 100));
+        CGFloat smallGapLeft = smallCircumference / smallAdjustedDivisionFactorLeft; //19,23281 vid 248, 18,7763 vid 348 > 0,45651 differens / 100 points
+        CGFloat smallDashAndGapLeft[] = {3.0, smallGapLeft}; //39.74 vid 248, 57.12 vid 348
+        
+        //small markers right side
+        UIBezierPath *smallMarkerpathRight = [UIBezierPath bezierPath];
+        smallMarkerpathRight.lineWidth = 15;
+        [smallMarkerpathRight addArcWithCenter:[self center] radius:self.bgRadius * 1.09f startAngle:(3 * M_PI / 2) endAngle:endtime-0.05 clockwise:YES];
+        
+        CGFloat smallAdjustedDivisionFactorRight = 18.7102 - ((self.layer.bounds.size.width - 248) * (0.31394 / 100));
+        CGFloat smallGapRight = smallCircumference / smallAdjustedDivisionFactorRight; //18.7102 vid 248, 18.39626 vid 348 > 0,31394 differens / 100 points
+        CGFloat smallDashAndGapRight[] = {3.0, smallGapRight}; //40.85 vid 248, 58.3 vid 348
+        
+        CGContextSaveGState(context);
+        CGContextSetLineDash(context, 0.0, smallDashAndGapLeft, 2);
+        [smallMarkerpathLeft stroke];
+        CGContextRestoreGState(context);
+        
+        CGContextSaveGState(context);
+        CGContextSetLineDash(context, 2, smallDashAndGapRight, 2);
+        [smallMarkerpathRight stroke];
+        CGContextRestoreGState(context);
     }
     
-    UIBezierPath *bgPathInner = [UIBezierPath bezierPath];
-    [bgPathInner moveToPoint:[self center]];
-    
-    CGFloat innerRadius = self.bgRadius * 0.7;
-    [bgPathInner addArcWithCenter:[self center] radius:innerRadius startAngle:starttime endAngle:endtime + 1 clockwise:YES];
-    //[bgPathInner addLineToPoint:[self center]];
-    
-    self.backgroundColor ? [self.backgroundColor set] : [[UIColor whiteColor] set];
-    [bgPathInner stroke];
-    [bgPathInner fill];
+    //todo make a better interface in general
+    if(!self.largeGauge){
+        UIImage *batterySymbol = [UIImage imageNamed:@"batterySymbol"];
+        CGFloat scaleFactor = (self.bounds.size.width / batterySymbol.size.width)/6 ;
+        
+        [batterySymbol drawInRect:CGRectMake([self centerX] * 1.16 - (batterySymbol.size.width * scaleFactor),
+                                             [self centerY] * 0.7 - (batterySymbol.size.height * scaleFactor),
+                                             batterySymbol.size.width * scaleFactor,
+                                             batterySymbol.size.height * scaleFactor)];
+    }
 }
 
 - (UIImage *)imageNamed:(NSString *)name withColor:(UIColor *)color drawAsOverlay:(BOOL)overlay{
@@ -346,7 +412,13 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
 
 - (void) drawNeedle
 {
-    CGFloat distance = [self bgRadius] + ([self bgRadius] * 0.1);
+    CGFloat distance;
+    if(self.largeGauge){
+        distance = [self bgRadius] + ([self bgRadius] * 0.1);
+    } else {
+        distance = [self bgRadius] + ([self bgRadius] * 0.135);
+    }
+    //CGFloat distance = [self bgRadius] + ([self bgRadius] * 0.1);
     CGFloat starttime = 0;
     CGFloat endtime = M_PI;
     CGFloat topSpace = (distance * 0.1)/6;
@@ -367,10 +439,13 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     [needlePath addLineToPoint:next]; //go one end of arc
     [needlePath addArcWithCenter:center radius:self.needleRadius startAngle:starttime endAngle:endtime clockwise:YES]; //add the arc
     
+
     [needlePath addLineToPoint:topPoint1];
-    
-    [needlePath addQuadCurveToPoint:topPoint2 controlPoint:topPoint];
-    
+    if(self.largeGauge){
+        [needlePath addQuadCurveToPoint:topPoint2 controlPoint:topPoint];
+    } else{
+        [needlePath addLineToPoint:topPoint2];
+    }
     [needlePath addLineToPoint:finishPoint];
     
     CGAffineTransform translate = CGAffineTransformMakeTranslation(-1 * (self.bounds.origin.x + [self center].x), -1 * (self.bounds.origin.y + [self center].y));
@@ -384,6 +459,12 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     
     [[self needleColor] set];
     [needlePath fill];
+    
+    if(!self.largeGauge){
+        CAShapeLayer *circleLayer = [CAShapeLayer layer];
+        [circleLayer setPath:[[UIBezierPath bezierPathWithOvalInRect:CGRectMake([self center].x - (self.needleRadius * 2), [self center].y - (self.needleRadius * 2), self.needleRadius * 4, self.needleRadius * 4)] CGPath]];
+        [[self layer] addSublayer:circleLayer];
+    }
 }
 
 - (UIColor *)lighterColorForColor:(UIColor *)c
