@@ -33,5 +33,7 @@
 @property (nonatomic) NSInteger currentLevel;
 
 @property (nonatomic, weak) id<SFGaugeViewDelegate> delegate;
+    
+- (void) runSelfTest; //use only for largeGauge
 
 @end

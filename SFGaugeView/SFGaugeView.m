@@ -66,9 +66,6 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     
     self.currentRadian = 0;
     [self addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)]];
-
-    //todo move to better place where we can check if largeGauge
-    [self runSelfTest];
 }
 
 - (void) awakeFromNib
@@ -76,7 +73,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     [self setup];
     [super awakeFromNib];
 }
-
+    
 #pragma mark drawing
 
 - (void)drawRect:(CGRect)rect
@@ -91,23 +88,17 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
 -(void)runSelfTest {
     self.runningSelfTest = YES;
     [self startNeedleRotationTimer];
-    self.animationDuration = 1.0f;
+    self.animationDuration = 0.5f;
     self.roundedTargetValueRadian = radiansFor7;
     self.totalRadiansToRotate = radiansFor7 * 2;
 }
 
--(void)goMin:(BOOL) largeGauge {
+-(void)goMin {
     self.runningSelfTest = NO;
     [self startNeedleRotationTimer];
-    self.animationDuration = 1.0f;
-    if(largeGauge){
-        self.roundedTargetValueRadian = radiansFor1;
-        self.totalRadiansToRotate = radiansFor1 * 2;
-    } else {
-        self.roundedTargetValueRadian = M_PI + CUTOFF;
-        self.totalRadiansToRotate = (M_PI + CUTOFF) *2 ;
-    }
-
+    self.animationDuration = 0.5f;
+    self.roundedTargetValueRadian = radiansFor1;
+    self.totalRadiansToRotate = radiansFor1 * 2;
 }
 
 - (void)rotateNeedleToClosestValue {
@@ -169,7 +160,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         [[UIApplication sharedApplication] endIgnoringInteractionEvents];
         //NSLog(@"***TIMER ENDED***");
         if(self.runningSelfTest){
-            [self goMin:self.largeGauge];
+            [self goMin];
         }
     }
     sender.paused = NO;
@@ -302,6 +293,8 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         CGContextSetLineDash(context, 0.0, whiteGapDashAndGap, 2);
         [whiteGapPath stroke];
         CGContextRestoreGState(context);
+    } else {
+        
     }
     
     UIBezierPath *bgPathInner = [UIBezierPath bezierPath];
@@ -677,7 +670,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
             _needleRadius = self.bounds.size.height * 0.06;
         }
         else {
-            _needleRadius = self.bounds.size.height * 0.08;
+            _needleRadius = self.bounds.size.height * 0.03;
         }
     }
     
