@@ -39,6 +39,13 @@ static const CGFloat radiansFor6 = 1.408f;
 static const CGFloat radiansFor7 = 2.11f;
 static const CGFloat radiansForHalfSegment = 0.35165f;
 
+static const CGFloat radiansFor1Small = -1.071f;
+static const CGFloat radiansFor2Small = -0.701f;
+static const CGFloat radiansFor3Small = -0.354f;
+static const CGFloat radiansFor5Small = 0.357f;
+static const CGFloat radiansFor6Small = 0.715f;
+static const CGFloat radiansFor7Small = 1.071f;
+static const CGFloat radiansForHalfSegmentSmall = 0.181f;
 
 #pragma mark init stuff
 
@@ -320,7 +327,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
         [markerpath addArcWithCenter:[self center] radius:self.bgRadius * 1.07f startAngle:starttime endAngle:endtime clockwise:YES];
         [markerpath addLineToPoint:[self center]];
         
-        [[UIColor blackColor] set];
+        [[self bgColor] set];
         markerpath.lineWidth = 25;
         
         CGContextSaveGState(context);
@@ -463,6 +470,7 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
     if(!self.largeGauge){
         CAShapeLayer *circleLayer = [CAShapeLayer layer];
         [circleLayer setPath:[[UIBezierPath bezierPathWithOvalInRect:CGRectMake([self center].x - (self.needleRadius * 2), [self center].y - (self.needleRadius * 2), self.needleRadius * 4, self.needleRadius * 4)] CGPath]];
+        circleLayer.fillColor = [self bgColor].CGColor;
         [[self layer] addSublayer:circleLayer];
     }
 }
@@ -520,6 +528,35 @@ static const CGFloat radiansForHalfSegment = 0.35165f;
             }
             else if(self.currentRadian > radiansFor7 - radiansForHalfSegment){
                 self.roundedTargetValueRadian = radiansFor7;
+            }
+            
+            [self rotateNeedleToClosestValue];
+        } else {
+            if(self.currentRadian < radiansFor1Small + radiansForHalfSegmentSmall){
+                self.roundedTargetValueRadian = radiansFor1Small;
+            }
+            else if (self.currentRadian > radiansFor1Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor2Small + radiansForHalfSegmentSmall)
+            {
+                self.roundedTargetValueRadian = radiansFor2Small;
+            }
+            else if (self.currentRadian > radiansFor2Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor3Small + radiansForHalfSegmentSmall)
+            {
+                self.roundedTargetValueRadian = radiansFor3Small;
+            }
+            else if (self.currentRadian > radiansFor3Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor4 + radiansForHalfSegmentSmall)
+            {
+                self.roundedTargetValueRadian = radiansFor4;
+            }
+            else if (self.currentRadian > radiansFor4 + radiansForHalfSegmentSmall && self.currentRadian < radiansFor5Small + radiansForHalfSegmentSmall)
+            {
+                self.roundedTargetValueRadian = radiansFor5Small;
+            }
+            else if (self.currentRadian > radiansFor5Small - radiansForHalfSegmentSmall && self.currentRadian < radiansFor6Small + radiansForHalfSegmentSmall)
+            {
+                self.roundedTargetValueRadian = radiansFor6Small;
+            }
+            else if(self.currentRadian > radiansFor7Small - radiansForHalfSegmentSmall){
+                self.roundedTargetValueRadian = radiansFor7Small;
             }
             
             [self rotateNeedleToClosestValue];
