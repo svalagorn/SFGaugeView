@@ -684,47 +684,60 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
 
 - (void) setCurrentLevel:(NSInteger)currentLevel
 {
-    if (currentLevel >= self.minlevel && currentLevel <= self.maxlevel) {
-        
-        self.oldLevel = currentLevel;
-
-        CGFloat range = M_PI - (CUTOFF * 2);
-
-        if (currentLevel != self.scale/2 + 1) { //om skalan är 6 så har vi range 1-7 vilket beytyder att 4 ska vara radian 0
-            self.currentRadian = (currentLevel * range)/self.scale - (range/2);
-            if (self.largeGauge){
-                switch (currentLevel) {
-                        case 1:
-                        self.currentRadian = radiansFor1;
-                        break;
-                        case 2:
-                        self.currentRadian = radiansFor2;
-                        break;
-                        case 3:
-                        self.currentRadian = radiansFor3;
-                        break;
-                        case 5:
-                        self.currentRadian = radiansFor5;
-                        break;
-                        case 6:
-                        self.currentRadian = radiansFor6;
-                        break;
-                        case 7:
-                        self.currentRadian = radiansFor7;
-                        break;
-                        
-                    default:
-                        break;
-                }
-            }
-            
-        } else {
-            self.currentRadian = 0.f;
+    self.oldLevel = currentLevel;
+    
+    if (self.largeGauge){
+        switch (currentLevel) {
+            case 1:
+                self.currentRadian = radiansFor1;
+                break;
+            case 2:
+                self.currentRadian = radiansFor2;
+                break;
+            case 3:
+                self.currentRadian = radiansFor3;
+                break;
+            case 5:
+                self.currentRadian = radiansFor5;
+                break;
+            case 6:
+                self.currentRadian = radiansFor6;
+                break;
+            case 7:
+                self.currentRadian = radiansFor7;
+                break;
+                
+            default:
+                self.currentRadian = 0.f;
+                break;
         }
-        
-        //        NSLog(@"Current Radian is %f", self.currentRadian);
-        [self setNeedsDisplay];
+    } else {
+        switch (currentLevel) {
+            case 1:
+                self.currentRadian = radiansFor1Small;
+                break;
+            case 2:
+                self.currentRadian = radiansFor2Small;
+                break;
+            case 3:
+                self.currentRadian = radiansFor3Small;
+                break;
+            case 5:
+                self.currentRadian = radiansFor5Small;
+                break;
+            case 6:
+                self.currentRadian = radiansFor6Small;
+                break;
+            case 7:
+                self.currentRadian = radiansFor7Small;
+                break;
+                
+            default:
+                self.currentRadian = 0.f;
+                break;
+        }
     }
+    [self setNeedsDisplay];
 }
 
 #pragma mark custom getter/setter
@@ -746,7 +759,7 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
 - (CGFloat)centerX
 {
     return self.bounds.size.width/2;
-}   
+}
 
 - (UIColor *) needleColor
 {
