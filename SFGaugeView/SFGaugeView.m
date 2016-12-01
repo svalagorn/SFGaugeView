@@ -73,6 +73,7 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
     
     self.currentRadian = 0;
     [self addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)]];
+    [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)]];
 }
 
 - (void) awakeFromNib
@@ -486,86 +487,105 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
     return nil;
 }
 
-#pragma mark pan gesture recognizer
+#pragma mark tap gesture recognizer
+- (void) handleTap: (UITapGestureRecognizer *) gesture
+{
+    CGPoint currentPosition = [gesture locationInView:self];
+    CGRect limitedTouchSurface = CGRectMake(0, 30, self.frame.size.width,self.frame.size.height * 0.75f);
+    if(!CGRectContainsPoint(limitedTouchSurface, currentPosition)){
+        return;
+    }
+    self.currentRadian = [self calculateRadian:currentPosition];
+    [self setRoundedValueAndAdjustNeedle];
+}
 
+#pragma mark pan gesture recognizer
 - (void) handlePan: (UIPanGestureRecognizer *) gesture
 {
     CGPoint currentPosition = [gesture locationInView:self];
     
     if (gesture.state == UIGestureRecognizerStateChanged)
     {
+        CGRect limitedTouchSurface = CGRectMake(0, 30, self.frame.size.width,self.frame.size.height * 0.75f);
+        if(!CGRectContainsPoint(limitedTouchSurface, currentPosition)){
+            return;
+        }
+        
         self.currentRadian = [self calculateRadian:currentPosition];
         [self setNeedsDisplay];
         [self currentLevel];
     }
     if (gesture.state == UIGestureRecognizerStateEnded)
     {
-        //NSLog(@"gesture state is 'ended'");
-        if(self.largeGauge){
-            //Avrunda till radianvärde för närmsta heltal (halvt segment = 0.35165 radians)
-            if(self.currentRadian < radiansFor1 + radiansForHalfSegment){
-                self.roundedTargetValueRadian = radiansFor1;
-            }
-            else if (self.currentRadian > radiansFor1 + radiansForHalfSegment && self.currentRadian < radiansFor2 + radiansForHalfSegment)
-            {
-                self.roundedTargetValueRadian = radiansFor2;
-            }
-            else if (self.currentRadian > radiansFor2 + radiansForHalfSegment && self.currentRadian < radiansFor3 + radiansForHalfSegment)
-            {
-                self.roundedTargetValueRadian = radiansFor3;
-            }
-            else if (self.currentRadian > radiansFor3 + radiansForHalfSegment && self.currentRadian < radiansFor4 + radiansForHalfSegment)
-            {
-                self.roundedTargetValueRadian = radiansFor4;
-            }
-            else if (self.currentRadian > radiansFor4 + radiansForHalfSegment && self.currentRadian < radiansFor5 + radiansForHalfSegment)
-            {
-                self.roundedTargetValueRadian = radiansFor5;
-            }
-            else if (self.currentRadian > radiansFor5 - radiansForHalfSegment && self.currentRadian < radiansFor6 + radiansForHalfSegment)
-            {
-                self.roundedTargetValueRadian = radiansFor6;
-            }
-            else if(self.currentRadian > radiansFor7 - radiansForHalfSegment){
-                self.roundedTargetValueRadian = radiansFor7;
-            }
-            
-            [self rotateNeedleToClosestValue];
-        } else {
-            if(self.currentRadian < radiansFor1Small + radiansForHalfSegmentSmall){
-                self.roundedTargetValueRadian = radiansFor1Small;
-            }
-            else if (self.currentRadian > radiansFor1Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor2Small + radiansForHalfSegmentSmall)
-            {
-                self.roundedTargetValueRadian = radiansFor2Small;
-            }
-            else if (self.currentRadian > radiansFor2Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor3Small + radiansForHalfSegmentSmall)
-            {
-                self.roundedTargetValueRadian = radiansFor3Small;
-            }
-            else if (self.currentRadian > radiansFor3Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor4 + radiansForHalfSegmentSmall)
-            {
-                self.roundedTargetValueRadian = radiansFor4;
-            }
-            else if (self.currentRadian > radiansFor4 + radiansForHalfSegmentSmall && self.currentRadian < radiansFor5Small + radiansForHalfSegmentSmall)
-            {
-                self.roundedTargetValueRadian = radiansFor5Small;
-            }
-            else if (self.currentRadian > radiansFor5Small - radiansForHalfSegmentSmall && self.currentRadian < radiansFor6Small + radiansForHalfSegmentSmall)
-            {
-                self.roundedTargetValueRadian = radiansFor6Small;
-            }
-            else if(self.currentRadian > radiansFor7Small - radiansForHalfSegmentSmall){
-                self.roundedTargetValueRadian = radiansFor7Small;
-            }
-            
-            [self rotateNeedleToClosestValue];
+        [self setRoundedValueAndAdjustNeedle];
+    }
+}
+
+-(void) setRoundedValueAndAdjustNeedle
+{
+    if(self.largeGauge){
+        //Avrunda till radianvärde för närmsta heltal (halvt segment = 0.35165 radians)
+        if(self.currentRadian < radiansFor1 + radiansForHalfSegment){
+            self.roundedTargetValueRadian = radiansFor1;
         }
+        else if (self.currentRadian > radiansFor1 + radiansForHalfSegment && self.currentRadian < radiansFor2 + radiansForHalfSegment)
+        {
+            self.roundedTargetValueRadian = radiansFor2;
+        }
+        else if (self.currentRadian > radiansFor2 + radiansForHalfSegment && self.currentRadian < radiansFor3 + radiansForHalfSegment)
+        {
+            self.roundedTargetValueRadian = radiansFor3;
+        }
+        else if (self.currentRadian > radiansFor3 + radiansForHalfSegment && self.currentRadian < radiansFor4 + radiansForHalfSegment)
+        {
+            self.roundedTargetValueRadian = radiansFor4;
+        }
+        else if (self.currentRadian > radiansFor4 + radiansForHalfSegment && self.currentRadian < radiansFor5 + radiansForHalfSegment)
+        {
+            self.roundedTargetValueRadian = radiansFor5;
+        }
+        else if (self.currentRadian > radiansFor5 - radiansForHalfSegment && self.currentRadian < radiansFor6 + radiansForHalfSegment)
+        {
+            self.roundedTargetValueRadian = radiansFor6;
+        }
+        else if(self.currentRadian > radiansFor7 - radiansForHalfSegment){
+            self.roundedTargetValueRadian = radiansFor7;
+        }
+        
+        [self rotateNeedleToClosestValue];
+    } else {
+        if(self.currentRadian < radiansFor1Small + radiansForHalfSegmentSmall){
+            self.roundedTargetValueRadian = radiansFor1Small;
+        }
+        else if (self.currentRadian > radiansFor1Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor2Small + radiansForHalfSegmentSmall)
+        {
+            self.roundedTargetValueRadian = radiansFor2Small;
+        }
+        else if (self.currentRadian > radiansFor2Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor3Small + radiansForHalfSegmentSmall)
+        {
+            self.roundedTargetValueRadian = radiansFor3Small;
+        }
+        else if (self.currentRadian > radiansFor3Small + radiansForHalfSegmentSmall && self.currentRadian < radiansFor4 + radiansForHalfSegmentSmall)
+        {
+            self.roundedTargetValueRadian = radiansFor4;
+        }
+        else if (self.currentRadian > radiansFor4 + radiansForHalfSegmentSmall && self.currentRadian < radiansFor5Small + radiansForHalfSegmentSmall)
+        {
+            self.roundedTargetValueRadian = radiansFor5Small;
+        }
+        else if (self.currentRadian > radiansFor5Small - radiansForHalfSegmentSmall && self.currentRadian < radiansFor6Small + radiansForHalfSegmentSmall)
+        {
+            self.roundedTargetValueRadian = radiansFor6Small;
+        }
+        else if(self.currentRadian > radiansFor7Small - radiansForHalfSegmentSmall){
+            self.roundedTargetValueRadian = radiansFor7Small;
+        }
+        
+        [self rotateNeedleToClosestValue];
     }
 }
 
 #pragma mark calculation stuff
-
 - (CGFloat)calculateRadian: (CGPoint) pos
 {
     CGPoint tmpPoint = CGPointMake(pos.x, [self center].y);
