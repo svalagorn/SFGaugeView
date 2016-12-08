@@ -39,7 +39,7 @@
     
 
     self.middleTachometer.largeGauge = true;
-    //self.middleTachometer.bgColor = [UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1];
+    self.middleTachometer.bgColor = [UIColor colorWithRed:102/255.0 green:220/255.0 blue:102/255.0 alpha:1];
     self.middleTachometer.needleColor = [UIColor colorWithRed:27/255.0 green:103/255.0 blue:107/255.0 alpha:1];
     //self.middleTachometer.needleColor = [UIColor colorWithRed:245/255.0 green:94/255.0 blue:94/255.0 alpha:1];
     self.middleTachometer.maxlevel = 7;

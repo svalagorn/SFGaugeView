@@ -265,15 +265,14 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
             [bgPath moveToPoint:[self center]];
             [bgPath addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:starttime endAngle: bgEndAngle clockwise:YES];
             [bgPath addLineToPoint:[self center]];
-            //[[self bgColor] set];
-            [[UIColor colorWithRed:102/255.0 green:175/255.0 blue:102/255.0 alpha:1] set];
+            [[self bgColor] set];
             [bgPath fill];
         }
         
         UIBezierPath *bgPath2 = [UIBezierPath bezierPath];
         [bgPath2 moveToPoint:[self center]];
         [bgPath2 addArcWithCenter:[self center] radius:coloredTrackRadius startAngle:bgEndAngle endAngle:endtime clockwise:YES];
-        [[self lighterColorForColor:[self bgColor]] set];
+        [[self lighterColorForColor:[UIColor colorWithRed:211/255.0 green:211/255.0 blue:211/255.0 alpha:1]] set];
         [bgPath2 fill];
         
         //markers
