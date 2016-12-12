@@ -96,7 +96,7 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
 -(void)runSelfTest {
     self.runningSelfTest = YES;
     [self startNeedleRotationTimer];
-    self.animationDuration = 0.75f;
+    self.animationDuration = 0.5f;
     self.roundedTargetValueRadian = radiansFor7;
     self.totalRadiansToRotate = radiansFor7 * 2;
 }
@@ -104,7 +104,7 @@ static const CGFloat radiansForHalfSegmentSmall = 0.181f;
 -(void)goMin {
     self.runningSelfTest = NO;
     [self startNeedleRotationTimer];
-    self.animationDuration = 0.75f;
+    self.animationDuration = 0.5f;
     self.roundedTargetValueRadian = radiansFor1;
     self.totalRadiansToRotate = radiansFor1 * 2;
 }
